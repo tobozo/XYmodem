@@ -101,11 +101,20 @@ extern Adafruit_W25Q16BV_FatFs fatfs;
 #define chipSelect
 #define XMODEM_PORT SerialUSB
 
+#elif defined(ESP32)
+#include <SD.h>
+#define FATFILESYS SD
+#define FATFILESYS_CLASS FS
+#define chipSelect
+#define XMODEM_PORT Serial
+#undef min
+#define min(a,b) ((a)<(b)?(a):(b))
+
 #else
 #include <SD.h>
 #define FATFILESYS SD
 #define FATFILESYS_CLASS SDClass
-#define chipSelect
+#define chipSelect TFCARD_CS_PIN
 #define XMODEM_PORT Serial
 #endif
 

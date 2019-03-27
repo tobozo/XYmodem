@@ -24,6 +24,8 @@ SOFTWARE.
 
 #include <Arduino.h>
 #include <xymodem.h>
+#include <M5Stack.h>
+#define tft M5.Lcd
 
 #define DEBUG_ON 0
 
@@ -33,7 +35,7 @@ SOFTWARE.
 /* Programming port */
 #define Debug_Serial Serial
 #else
-#define Debug_Serial Serial1
+#define Debug_Serial tft
 #endif
 
 #define dbprint(...) Debug_Serial.print(__VA_ARGS__)
@@ -87,7 +89,7 @@ int XYmodem::start(Stream *port, void *filesys, const char *rx_filename, bool rx
   port->flush();
   next_millis = millis()+ TIMEOUT_LONG;
   if (rx_filename != NULL && *rx_filename != '\0') {
-    dbprint("XYmodem starting <"); dbprint(rx_filename); dbprintln('>');
+    tft.print("XYmodem starting <"); tft.print(rx_filename); tft.println('>');
     this->filesys->remove((char *)rx_filename);
     strncpy(this->rx_filename, (char *)rx_buf, sizeof(this->rx_filename)-1);
     this->rx_filename[sizeof(this->rx_filename)-1] = '\0';
@@ -96,7 +98,7 @@ int XYmodem::start(Stream *port, void *filesys, const char *rx_filename, bool rx
       return 0;
     }
     else {
-      dbprintln("XYmodem open file failed");
+      tft.println("XYmodem open file failed");
       return 1;
     }
   }
@@ -160,8 +162,8 @@ int XYmodem::loop(void)
             port->flush();
             next_block = 1;
             if (rxmodem) {
-              dbprint("YMODEM="); dbprintln(YMODEM, DEC);
-              dbprint("filename="); dbprintln(rx_filename);
+              tft.print("YMODEM="); dbprintln(YMODEM, DEC);
+              tft.print("filename="); dbprintln(rx_filename);
               if (YMODEM && (strcmp(rx_filename, "") == 0))
                 rxmodem_state = IDLE;
               else
@@ -264,7 +266,7 @@ int XYmodem::loop(void)
             }
             else if (block == 0) {
               // ymodem block 0 file name, file size, etc.
-              dbprint("rx file name="); dbprintln((char *)rx_buf);
+              tft.print("rx file name="); tft.println((char *)rx_buf);
               if (rx_buf[0] != '\0') {
                 filesys->remove((char *)rx_buf);
                 strncpy(rx_filename, (char *)rx_buf, sizeof(rx_filename)-1);
